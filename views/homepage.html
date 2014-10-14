@@ -1,0 +1,67 @@
+<br />
+<div>
+	<input type="text" name="user" placeholder="Service" maxlength="200" style="width:500px" />
+	<button name="send" >Save</div>
+</div>
+<br />
+<div>
+	<textarea id="output" style="width:620px;height:300px" readonly="readonly"></textarea>
+</div>
+<br />
+
+<script type="text/javascript">
+
+	var socket = null;
+
+	$(document).ready(function() {
+
+		connect();
+
+		$('button').bind('click', function() {
+
+			
+
+			if (this.name === 'send') {
+				
+			
+				console.log(send());
+				return;
+			}					
+		});
+	});
+
+	function connect() {
+
+		if (socket !== null)
+			return;
+		socket = new WebSocket('ws://127.0.0.1:8000/');
+
+	    socket.onopen = function() {
+	        console.log('open');
+	    };
+
+		socket.onuser = function(e) {
+			var el = $('#output');
+			var m = JSON.parse(decodeURIComponent(e.data)).user;
+			el.val(m + '\n' + el.val());
+		};
+
+	    socket.onclose = function(e) {
+	    	// e.reason ==> total.js client.close('reason user');
+	        console.log('close');
+	    };
+	}
+
+	function send() {
+		var el = $('input[name="user"]');
+		var msg = el.val();
+
+		if (socket !== null && msg.length > 0)
+			socket.send(encodeURIComponent(JSON.stringify({ user: msg })));
+
+		el.val('');
+		return msg;
+	}
+
+
+</script>
